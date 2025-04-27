@@ -1,0 +1,489 @@
+Experiment no. 02 :- Vacuum Cleaner World
+
+
+def vacuum_cleaner_world():
+    dirt_left = input("Is there dirt on the left tile? (yes/no): ").strip().lower()
+    dirt_right = input("Is there dirt on the right tile? (yes/no): ").strip().lower()
+
+    vacuum_position = input("Where is the vacuum cleaner initially? (left/right): ").strip().lower()
+
+    total_cost = 0
+
+    visited_left = False
+    visited_right = False
+
+    while True:
+        print(f"\nCurrent Position: {vacuum_position.capitalize()} Tile")
+
+        if vacuum_position == "left":
+            if dirt_left == "yes":
+                print("Action: Suck dirt on the left tile.")
+                dirt_left = "no"
+                total_cost += 5
+                print(f"Cost incurred: 5 | Total Cost: {total_cost}")
+            visited_left = True
+            print("Action: Move to the right tile.")
+            vacuum_position = "right"
+
+        elif vacuum_position == "right":
+            if dirt_right == "yes":
+                print("Action: Suck dirt on the right tile.")
+                dirt_right = "no"
+                total_cost += 5
+                print(f"Cost incurred: 5 | Total Cost: {total_cost}")
+            visited_right = True
+            print("Action: Move to the left tile.")
+            vacuum_position = "left"
+
+        # Break the loop if both tiles are clean and both tiles have been visited
+        if dirt_left == "no" and dirt_right == "no" and visited_left and visited_right:
+            print("\nBoth tiles are clean.")
+            print(f"Total cost of cleaning: {total_cost}")
+            return
+
+# Run the program
+vacuum_cleaner_world()
+
+
+
+
+
+
+Experiment no. 03 :- Prolog
+
+
+male(francis).
+male(john).
+male(verus).
+male(onil).
+male(hollis).
+male(gladon).
+male(glen).
+
+female(jecy).
+female(stella).
+female(mona).
+female(della).
+female(lena).
+female(donita).
+female(skyla).
+female(scania).
+
+parent(jecy, verus).
+parent(francis, verus).
+parent(jecy, della).
+parent(francis, della).
+parent(jecy, glen).
+parent(francis, glen).
+parent(stella,mona).
+parent(john,mona).
+parent(verus, hollis).
+parent(verus, scania).
+parent(mona, hollis).
+parent(mona, scania).
+parent(della, donita).
+parent(della, gladon).
+parent(onil, donita).
+parent(onil, gladon).
+parent(glen, skyla).
+parent(lena, skyla).
+
+sibling(X, Y) :- parent(Z, X), parent(Z, Y), X \= Y.
+brother(X, Y) :- sibling(X, Y), male(X).
+sister(X, Y) :- sibling(X, Y), female(X).
+
+
+uncle(X, Y) :-
+    parent(Z, Y),
+    setof(U, (brother(U, Z)), Uncles),
+    member(X, Uncles).
+uncle(X, Y) :-
+    parent(Z, Y),
+    setof(U, (husband(U, W), sister(W, Z)), UnclesByMarriage),
+    member(X, UnclesByMarriage).
+
+aunt(X, Y) :-
+    parent(Z, Y),
+    setof(A, (sister(A, Z)), Aunts),
+    member(X, Aunts).
+aunt(X, Y) :-
+    parent(Z, Y),
+    setof(A, (wife(A, W), brother(W, Z)), AuntsByMarriage),
+    member(X, AuntsByMarriage).
+
+
+grandfather(X, Y) :- parent(X, Z), parent(Z, Y), male(X).
+grandmother(X, Y) :- parent(X, Z), parent(Z, Y), female(X).
+
+cousin(X, Y) :- setof(C, (parent(A, C), parent(B, Y), sibling(A, B), C \= Y), Cousins), member(X, Cousins).
+
+father(X, Y) :- parent(X, Y), male(X).
+mother(X, Y) :- parent(X, Y), female(X).
+
+wife(X, Y) :- parent(X, C), parent(Y, C), female(X).
+husband(X, Y) :- parent(X, C), parent(Y, C), male(X).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Experiment no. 04 :- BFS and DFS
+MAX = 10
+
+def breadth_first_search(adj, visited, start, goal, n):
+    queue = [start]
+    visited[start] = True
+    bfs_path = []
+    print("\nBFS Traversal:")
+    step = 1
+    while queue:
+        x = queue.pop(0)
+        bfs_path.append(x)
+        print(f"Step {step} - Visited: {x} - Queue: {queue}")
+        step += 1
+        if x == goal:
+            print("Goal reached!")
+            print("BFS Path:", bfs_path)
+            return
+        for i in range(n):
+            if adj[x][i] == 1 and not visited[i]:
+                queue.append(i)
+                visited[i] = True
+                
+
+
+def depth_first_search(adj, visited, start, goal, n):
+    stack = [start]
+    visited[start] = True
+    dfs_path = []
+    print("\nDFS Traversal:")
+    step = 1
+    while stack:
+        x = stack.pop()
+        dfs_path.append(x)
+        print(f"Step {step} - Visited: {x} - Stack: {stack}")
+        step += 1
+        if x == goal:
+            print("Goal reached!")
+            print("DFS Path:", dfs_path)
+            return
+        for i in range(n - 1, -1, -1):
+            if adj[x][i] == 1 and not visited[i]:
+                stack.append(i)
+                visited[i] = True
+
+def main():
+    n = int(input("Enter the number of nodes: "))
+    print("Enter the adjacency matrix:")
+    adj = [list(map(int, input().split())) for _ in range(n)]
+    start = int(input("Enter starting node: "))
+    goal  = int(input("Enter goal node: "))
+
+    visited = [False] * MAX
+    breadth_first_search(adj, visited, start, goal, n)
+
+    visited = [False] * MAX
+    depth_first_search(adj, visited, start, goal, n)
+
+main()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Experiment no. 05 :- A* Search
+
+def h(state, goal):
+    return sum(state[i][j] != goal[i][j] and state[i][j] != 0 for i in range(3) for j in range(3))
+
+def find_zero(s):
+    for i in range(3):
+        for j in range(3):
+            if s[i][j] == 0: return i, j
+
+def copy(s): return [row[:] for row in s]
+
+def moves(s):
+    x, y = find_zero(s)
+    dirs = [(-1,0),(1,0),(0,-1),(0,1)]
+    out = []
+    for dx, dy in dirs:
+        nx, ny = x+dx, y+dy
+        if 0<=nx<3 and 0<=ny<3:
+            ns = copy(s)
+            ns[x][y], ns[nx][ny] = ns[nx][ny], ns[x][y]
+            out.append(ns)
+    return out
+
+def show(state): [print(r) for r in state]
+
+def a_star(start, goal):
+    q = [(0, start, [], 0)]
+    seen = []
+
+    while q:
+        q.sort(key=lambda x: x[0])
+        f, s, path, g = q.pop(0)
+        if s in seen: continue
+        seen.append(s)
+
+        nexts = moves(s)
+        step_info = []
+        for m in nexts:
+            g1 = g + 1
+            h1 = h(m, goal)
+            f1 = g1 + h1
+            step_info.append((m, f1, g1, h1))
+
+        print(f"Step {g}: Possible moves and their f(n) values:")
+        for m, f1, g1, h1 in step_info:
+            print(f"f(n) = {f1} (g(n) = {g1}, h(n) = {h1})")
+
+        best = min(step_info, key=lambda x: x[1])
+        print(f"Selected Optimal Move (f(n) = {best[1]}):")
+        show(best[0])
+
+        if best[0] == goal:
+            print("Optimal Solution Found:")
+            show(best[0])
+            return
+        q.append((best[1], best[0], path+[s], best[2]))
+
+def get_input(msg):
+    print(msg)
+    return [list(map(int, input(f"Row {i+1}: ").split())) for i in range(3)]
+
+start = get_input("Enter Initial State:")
+goal = get_input("Enter Goal State:")
+a_star(start, goal)
+
+
+
+
+
+
+
+
+
+
+Experiment no. 06 :- Tic Tac Toe
+
+
+PLAYER, OPPONENT, EMPTY = 'X', 'O', '_'
+
+def print_board(b):
+    for r in b: print(*r)
+    print()
+
+def is_moves_left(b):
+    return any(EMPTY in r for r in b)
+
+def evaluate(b):
+    for i in range(3):
+        if b[i][0] == b[i][1] == b[i][2] != EMPTY or b[0][i] == b[1][i] == b[2][i] != EMPTY:
+            return 1 if b[i][i] == PLAYER else -1
+    if b[0][0] == b[1][1] == b[2][2] != EMPTY or b[0][2] == b[1][1] == b[2][0] != EMPTY:
+        return 1 if b[1][1] == PLAYER else -1
+    return 0
+
+def minimax(b, is_max):
+    s = evaluate(b)
+    if s or not is_moves_left(b): return s
+    best = -1000 if is_max else 1000
+    for i in range(3):
+        for j in range(3):
+            if b[i][j] == EMPTY:
+                b[i][j] = PLAYER if is_max else OPPONENT
+                best = max(best, minimax(b, 0)) if is_max else min(best, minimax(b, 1))
+                b[i][j] = EMPTY
+    return best
+
+def find_best_move(b):
+    best_val, move = -1000, (0, 0)
+    for i in range(3):
+        for j in range(3):
+            if b[i][j] == EMPTY:
+                b[i][j] = PLAYER
+                val = minimax(b, 0)
+                b[i][j] = EMPTY
+                if val > best_val: best_val, move = val, (i, j)
+    return move
+
+def main():
+    b = [[EMPTY]*3 for _ in range(3)]
+    print("Initial Board:")
+    print_board(b)
+
+    while is_moves_left(b) and not evaluate(b):
+        x, y = find_best_move(b)
+        b[x][y] = PLAYER
+        print("AI plays:")
+        print_board(b)
+        if evaluate(b) or not is_moves_left(b): break
+        try:
+            r, c = map(int, input("Your move (row col): ").split())
+            if not (0 <= r < 3 and 0 <= c < 3) or b[r][c] != EMPTY: raise Exception
+            b[r][c] = OPPONENT
+            print("After your move:")
+            print_board(b)
+        except: print("Invalid move. Try again.")
+    r = evaluate(b)
+    print("AI wins!" if r == 1 else "You win!" if r == -1 else "It's a draw!")
+
+if __name__ == "__main__":
+    main()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Experiment no. 07 :- Bayesian Network
+
+
+events = ["Burglary", "Earthquake", "Alarm", "JohnCalls", "MaryCalls"]
+print("\nEvents in the network:", events)
+
+CPT = {
+    "Burglary": {"True": 0.001, "False": 0.999},
+    "Earthquake": {"True": 0.002, "False": 0.998},
+    "Alarm": {
+        ("True", "True"): {"True": 0.95, "False": 0.05},
+        ("True", "False"): {"True": 0.94, "False": 0.06},
+        ("False", "True"): {"True": 0.29, "False": 0.71},
+        ("False", "False"): {"True": 0.001, "False": 0.999}
+    },
+    "JohnCalls": {"True": {"True": 0.9, "False": 0.1}, "False": {"True": 0.05, "False": 0.95}},
+    "MaryCalls": {"True": {"True": 0.7, "False": 0.3}, "False": {"True": 0.01, "False": 0.99}},
+}
+
+print("\nConditional Probability Tables (CPTs):")
+for ev, table in CPT.items():
+    print(f"\nCPT for {ev}:\n{table}")
+
+def joint_prob(q):
+    b, e, a, j, m = [str(q[x]) for x in events]
+    return (CPT["Burglary"][b] * CPT["Earthquake"][e] *
+            CPT["Alarm"][(b, e)][a] * CPT["JohnCalls"][a][j] *
+            CPT["MaryCalls"][a][m])
+
+
+def run_query(q):
+    if all(x in q for x in events):
+        return joint_prob(q)
+    print("Error: All event states must be provided.")
+
+queries = [
+    {"Burglary": False, "Earthquake": False, "Alarm": True, "JohnCalls": True, "MaryCalls": True},
+    {"Burglary": True, "Earthquake": True, "Alarm": True, "JohnCalls": True, "MaryCalls": True},
+    {"Burglary": False, "Earthquake": False, "Alarm": False, "JohnCalls": False, "MaryCalls": False},
+    {"Burglary": True, "Earthquake": False, "Alarm": True, "JohnCalls": False, "MaryCalls": True},
+    {"Burglary": False, "Earthquake": True, "Alarm": False, "JohnCalls": True, "MaryCalls": False},
+    {"Burglary": False, "Earthquake": False, "Alarm": True, "JohnCalls": False, "MaryCalls": False},
+]
+
+print("\n--- Query Results ---")
+for i, q in enumerate(queries):
+    prob = run_query(q)
+    values = ", ".join(f"{k}={str(v)}" for k, v in q.items())
+    print(f"Probability ({values}): {prob:.8f}")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Experiment no. 08 :- Block world problem
+
+class BlockWorldPlanner:
+    def __init__(self,initial,goal):
+        self.initial = initial
+        self.goal = goal
+        self.plan = []
+
+    def is_goal(self,state):
+        return state == self.goal
+
+    def generate_plan(self):
+        state = self.initial.copy()
+        while not self.is_goal(state):
+            for block, pos in self.goal.items():
+                if state[block] != pos:
+                    for b,p in state.items():
+                        if p == block:
+                            self.plan.append(f"Move {b} to the Table")
+                            state[b] = "Table"
+                    self.plan.append(f"Move {block} to {pos}")
+                    state[block] = pos
+
+
+    def display_plan(self):
+        print("Final Plan: ")
+        for step in self.plan:
+            print("-",step)
+
+initial = {}
+goal = {}
+n = int(input("Enter the Total number of Blocks: "))
+
+print("Enter the Initial State: ")
+for _ in range(n):
+    b,p = input().split()
+    initial[b] = p
+print("Enter the Goal State: ")
+for _ in range(n):
+    b,p = input().split()
+    goal[b] = p
+
+planner = BlockWorldPlanner(initial,goal)
+planner.generate_plan()
+planner.display_plan()
+
+
